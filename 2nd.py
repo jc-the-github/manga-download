@@ -1,5 +1,6 @@
 # import weasyprint
 # weasyprint.HTML('https://weebcentral.com/chapters/01J76XZ36BHKNFA0SVP19XVB7C').write_pdf()
+import traceback
 from selenium import webdriver
 from selenium import *
 from time import time
@@ -13,13 +14,13 @@ from inputimeout import inputimeout, TimeoutOccurred
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import sys
-import pdfkit
+# import pdfkit
 import re
 import requests
 from bs4 import BeautifulSoup
 from PIL import Image
 import os
-
+import urllib.request
 
 # import weasyprint
 imageNamesArrays = []
@@ -30,11 +31,11 @@ urlToDownloadFrom = "https://weebcentral.com/chapters/01J76XZ8W6EK7BJCR00DYGD7B3
 # do not include space after name
 pdfName = "The Batend"
 
-secondstartingChapterNum = 40
-secondurlToDownloadFrom = "https://weebcentral.com/chapters/01J76XZ36BKT346FZ5ME3APB0K"
+secondstartingChapterNum = 1
+secondurlToDownloadFrom = "https://weebcentral.com/chapters/01JHVPNS8PT691CC4RVVMPQ30Z"
 # do not include space after name
-secondpdfName = "Sakamoto Days"
-do2ndManga = False
+secondpdfName = "Akira"
+do2ndManga = True
 # pdfName = ""
 
 
@@ -59,12 +60,14 @@ def saveAsPDF(imageNamesArray, currentChapterNum):
         except Exception as e:
             print("Error unable to add image to pdf array: " + str(e))
             print("Unable to add image to pdf array: " + f)
+            traceback.print_exc()
+# C:\Users\jcsne\OneDrive\Desktop\Programming\manga-download\The Batend
     # images = [
     # Image.open("C:\Users\jcsne\OneDrive\Desktop\Programming\manga download" + f)
     # for f in ["bbd.jpg", "bbd1.jpg", "bbd2.jpg"]
     # ]
 
-    pdf_path = "C:/Users/jcsne/OneDrive/Desktop/Programming/manga download/createdPDFs/" + newNamePDFFile
+    pdf_path = "C:/Users/jcsne/OneDrive/Desktop/Programming/manga-download/createdPDFs/" + newNamePDFFile
         
     images[0].save(
         pdf_path, "PDF" ,resolution=100.0, save_all=True, append_images=images[1:]
@@ -103,14 +106,22 @@ def changeURLS():
                 print("Regex didn't match with the url: {}".format(url))
                 continue
             newImageNameArray.append(pdfName + "/" +filename.group(1))
-            with open(pdfName + "/" + filename.group(1), 'wb') as f:
-                if 'http' not in url:
-                    # sometimes an image source can be relative 
-                    # if it is provide the base url which also happens 
-                    # to be the site variable atm. 
-                    url = '{}{}'.format(site, url)
-                response = requests.get(url)
-                f.write(response.content)
+            try:
+
+                urllib.request.urlretrieve(url,pdfName + "/" +filename.group(1))
+            except Exception as e:
+                print("E: " + str(e))
+            # with open(pdfName + "/" + filename.group(1), 'wb') as f:
+            #     if 'http' not in url:
+            #         # sometimes an image source can be relative 
+            #         # if it is provide the base url which also happens 
+            #         # to be the site variable atm. 
+            #         url = '{}{}'.format(site, url)
+            #     print("s:" + str(url))
+            #     # request.
+            #     response = requests.get(url)
+            #     print("s" + str(response))
+            #     f.write(response.content)
         imageNamesArrays.append(newImageNameArray)
         saveAsPDF(newImageNameArray, i)
         # pdfkit.from_url(newUrl, newNamePDFFile)
@@ -185,7 +196,7 @@ if do2ndManga:
     pdfName = secondpdfName
     imageNamesArrays = []
     startingChapterNum = secondstartingChapterNum
-
+    amountChaptersToDownload = 6
     changeURLS()
     print("Done M8tey~ :DD #2")
 
